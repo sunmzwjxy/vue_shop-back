@@ -16,7 +16,7 @@ router.post('/login', async function (req, res) {
     var username = req.body.username
     var password = req.body.password
 
-    let SQL_string = `SELECT * FROM USERS WHERE NAME='${username}'`
+    let SQL_string = `SELECT * FROM USERS WHERE USERNAME='${username}'`
     let result = await (await myPool).query(SQL_string)
 
     if (password === result[0].password) {
@@ -29,9 +29,7 @@ router.post('/login', async function (req, res) {
 })
 
 router.get('/userlist', async function (req, res, next) {
-    let SQL_string = `select * from USERS WHERE NAME LIKE '%${req.query.query}%' limit ${
-        (parseInt(req.query.pagenum) - 1) * req.query.pagesize
-    },${req.query.pagesize}`
+    let SQL_string = `select * from USERS WHERE USERNAME LIKE '%${req.query.query}%' limit ${(parseInt(req.query.pagenum) - 1) * req.query.pagesize},${req.query.pagesize}`
 
     let SQL_Count = 'SELECT COUNT(*) AS length FROM USERS'
 
@@ -47,7 +45,7 @@ router.get('/userlist', async function (req, res, next) {
     res.send(data)
 })
 
-router.put('/user/:id/state/:status', async function(req, res, next) {
+router.put('/user/:id/state/:status', async function (req, res, next) {
     let SQL_string = `UPDATE USERS SET status = ${req.params.status} WHERE ID=${req.params.id}`
 
     let result = await (await myPool).query(SQL_string)
@@ -55,8 +53,24 @@ router.put('/user/:id/state/:status', async function(req, res, next) {
     res.send(result)
 })
 
-router.put('/addd', async function(req, res, next) {
-    let SQL_string = 'INSERT'
+router.post('/add', async function (req, res, next) {
+    let SQL_string = `INSERT INTO USERS (username,password,mail,phone,type,role,status,create_time) VALUES ( '${req.body.username}', '${req.body.password}', '${req.body.mail}', '${req.body.phone}', 1, 'Operater', 0,NULL)`
+    let result = await (await myPool).query(SQL_string)
+
+    res.send(result)
+})
+
+router.put('/edit',async function(req,res,next) {
+    let SQL_string = `UPDATE USERS SET username = '${req.body.username}', password = '${req.body.password}', mail = '${req.body.mail}', phone = '${req.body.phone}' WHERE ID=${req.body.id}`
+
+    let result = await (await myPool).query(SQL_string)
+
+    res.send(result)
+})
+
+router.delete('/delete',async function(req,res,next) {
+    let SQL_string = `DELETE FROM USERS WHERE ID=${req.query.id}`
+
     let result = await (await myPool).query(SQL_string)
 
     res.send(result)
