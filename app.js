@@ -10,6 +10,9 @@ var indexRouter = require('./routes/index')
 var usersRouter = require('./routes/users')
 var noteRouter = require('./routes/note')
 var introductionRouter = require('./routes/introduction')
+var uploadRouter = require('./routes/upload')
+var roleRouter = require('./routes/role')
+var rightRouter = require('./routes/right')
 var history = require('connect-history-api-fallback')
 
 var app = express()
@@ -55,6 +58,18 @@ app.use(
                     return context.parsedUrl.pathname
                 },
             },
+            {
+                from: /^\/role\/.*$/,
+                to: function (context) {
+                    return context.parsedUrl.pathname
+                },
+            },
+            {
+                from: /^\/right\/.*$/,
+                to: function (context) {
+                    return context.parsedUrl.pathname
+                },
+            }
         ],
     })
 )
@@ -72,7 +87,8 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use(function (req, res, next) {
     // 我这里知识把登陆和注册请求去掉了，其他的多有请求都需要进行token校验
     if (req.url != '/users/login' && req.url != '/users/register') {
-        let token = req.headers.authorization
+        let authorization  = req.headers.authorization
+        let token = authorization.split(' ')[0];
         let jwt = new JwtUilt(token)
         let result = jwt.verifyToken()
         // 如果考验通过就next，否则就返回登陆信息不正确
@@ -94,6 +110,9 @@ app.use('/users', usersRouter) // Users
 /////////
 app.use('/note', noteRouter) // Test
 app.use('/introduction', introductionRouter) // Test
+app.use('/upload',uploadRouter)
+app.use('/role', roleRouter)
+app.use('/right', rightRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
